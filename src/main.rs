@@ -1,5 +1,6 @@
 use axum::{
     routing::{get, post},
+    extract::Path,
     http::StatusCode,
     // response::IntoResponse,
     Json, Router,
@@ -20,7 +21,7 @@ async fn main() {
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
-        .route("/rss", get(rss))
+        .route("/users/:user_id/rss", get(user_rss))
         // `POST /users` goes to `create_user`
         .route("/users", post(create_user));
 
@@ -39,9 +40,9 @@ async fn root() -> &'static str {
     "Hello, World!"
 }
 
-async fn rss() -> (StatusCode, String) {
+async fn user_rss(Path(user_id): Path<String>) -> (StatusCode, String) {
 
-    let profile = nostr_sdk::nips::nip05::get_profile("_@philipcristiano.com", None).await.unwrap();
+    let profile = nostr_sdk::nips::nip05::get_profile(&user_id, None).await.unwrap();
 
     let profile_key = Keys::from_public_key(profile.public_key);
     println!("profile: {:?}", profile);
