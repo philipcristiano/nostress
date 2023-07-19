@@ -90,6 +90,7 @@ async fn user_rss(Path(user_id): Path<String>) -> (StatusCode, String) {
         let i = ItemBuilder::default()
             .content(c)
             .guid(guid)
+            .pub_date(e.created_at.to_human_datetime())
             .build();
         items.push(i);
     }
