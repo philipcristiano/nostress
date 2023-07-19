@@ -9,15 +9,22 @@ use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::time::Duration;
 use rss::{ChannelBuilder, Item, ItemBuilder, Guid};
+use clap::Parser;
 
 use nostr_sdk::prelude::*;
 
+#[derive(Parser, Debug)]
+pub struct Args {
+    #[arg(short, long, default_value = "127.0.0.1:3000")]
+    bind_addr: String, // --dry-run or DRY_RUN env var
+}
 
 #[tokio::main]
 async fn main() {
     // initialize tracing
     tracing_subscriber::fmt::init();
 
+    let args = Args::parse();
     // build our application with a route
     let app = Router::new()
         // `GET /` goes to `root`
@@ -28,7 +35,7 @@ async fn main() {
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr: SocketAddr = args.bind_addr.parse().expect("Expected bind addr");
     tracing::info!("listening on {}", addr);
     axum::Server::bind(&addr)
         .serve(app.into_make_service())
