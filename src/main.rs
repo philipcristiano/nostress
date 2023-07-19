@@ -1,7 +1,8 @@
 use axum::{
     routing::{get, post},
     extract::Path,
-    http::StatusCode,
+    http::{StatusCode, header},
+    response::IntoResponse,
     // response::IntoResponse,
     Json, Router,
 };
@@ -48,7 +49,7 @@ async fn root() -> &'static str {
     "Hello, World!"
 }
 
-async fn user_rss(Path(user_id): Path<String>) -> (StatusCode, String) {
+async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
 
     let profile = nostr_sdk::nips::nip05::get_profile(&user_id, None).await.unwrap();
 
@@ -97,7 +98,7 @@ async fn user_rss(Path(user_id): Path<String>) -> (StatusCode, String) {
 
     channel.set_items(items);
 
-    (StatusCode::OK, channel.to_string())
+    (StatusCode::OK, [(header::CONTENT_TYPE, "application/rss+xml")], channel.to_string())
 
 }
 
