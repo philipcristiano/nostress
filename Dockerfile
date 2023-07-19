@@ -1,5 +1,13 @@
 FROM rust:1.67 as builder
 WORKDIR /usr/src/app
+
+COPY Cargo.toml Cargo.lock /usr/src/app/
+RUN \
+    mkdir /usr/src/app/src && \
+    echo 'fn main() {}' > /usr/src/app/src/main.rs && \
+    cargo build --release && \
+    rm -Rvf /usr/src/app/src
+
 COPY . .
 RUN cargo install --path .
 
