@@ -9,6 +9,7 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::time::Duration;
+use std::ops::Sub;
 use rss::{ChannelBuilder, Item, ItemBuilder, Guid};
 use clap::Parser;
 
@@ -17,7 +18,7 @@ use nostr_sdk::prelude::*;
 #[derive(Parser, Debug)]
 pub struct Args {
     #[arg(short, long, default_value = "127.0.0.1:3000")]
-    bind_addr: String, // --dry-run or DRY_RUN env var
+    bind_addr: String,
 }
 
 #[tokio::main]
@@ -30,9 +31,7 @@ async fn main() {
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
-        .route("/users/:user_id/rss", get(user_rss))
-        // `POST /users` goes to `create_user`
-        .route("/users", post(create_user));
+        .route("/users/:user_id/rss", get(user_rss));
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
@@ -63,10 +62,12 @@ async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
 
     client.connect().await;
 
-    let start = Timestamp::from(0);
+    let now = Timestamp::now();
+    let since = now.sub(Duration::from_secs(86400));
     let subscription = Filter::new()
         .pubkeys(vec![profile.public_key])
-        .since(start);
+        .kind(Kind::TextNote)
+        .since(since);
 
     let timeout = Duration::from_secs(10);
     let events = client
@@ -86,15 +87,7 @@ async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
     let mut items: Vec<Item> = Vec::new();
 
     for e in events {
-        let c = e.content;
-        let mut guid = Guid::default();
-        guid.set_value(e.id.to_string());
-        let i = ItemBuilder::default()
-            .content(c)
-            .guid(guid)
-            .pub_date(e.created_at.to_human_datetime())
-            .build();
-        items.push(i);
+        items.push(event_to_item(e));
     }
 
     channel.set_items(items);
@@ -103,31 +96,14 @@ async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
 
 }
 
-async fn create_user(
-    // this argument tells axum to parse the request body
-    // as JSON into a `CreateUser` type
-    Json(payload): Json<CreateUser>,
-) -> (StatusCode, Json<User>) {
-    // insert your application logic here
-    let user = User {
-        id: 1337,
-        username: payload.username,
-    };
+fn event_to_item(e: Event) -> Item {
+    let c = e.content;
+    let mut guid = Guid::default();
+    guid.set_value(e.id.to_string());
 
-    // this will be converted into a JSON response
-    // with a status code of `201 Created`
-    (StatusCode::CREATED, Json(user))
-}
-
-// the input to our `create_user` handler
-#[derive(Deserialize)]
-struct CreateUser {
-    username: String,
-}
-
-// the output to our `create_user` handler
-#[derive(Serialize)]
-struct User {
-    id: u64,
-    username: String,
+    ItemBuilder::default()
+        .content(c)
+        .guid(guid)
+        .pub_date(e.created_at.to_human_datetime())
+        .build()
 }
