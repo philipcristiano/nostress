@@ -63,7 +63,7 @@ async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
     let now = Timestamp::now();
     let since = now.sub(Duration::from_secs(86400));
     let subscription = Filter::new()
-        .pubkeys(vec![profile.public_key])
+        .author(profile.public_key.to_string())
         .kind(Kind::TextNote)
         .since(since);
 
