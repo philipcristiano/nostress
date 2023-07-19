@@ -75,10 +75,12 @@ async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
         .unwrap();
     client.disconnect().await.unwrap();
 
+    let title = vec![user_id, " - Nostr".to_string()].join("");
+
     let mut channel = ChannelBuilder::default()
-        .title("Channel Title")
+        .title(&title)
         .link("http://example.com")
-        .description("An RSS feed.")
+        .description(&title)
         .build();
 
     let mut items: Vec<Item> = Vec::new();
