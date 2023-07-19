@@ -87,7 +87,6 @@ async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
 
     for e in events {
         let c = e.content;
-        println!("Event: {c}");
         let mut guid = Guid::default();
         guid.set_value(e.id.to_string());
         let i = ItemBuilder::default()
