@@ -8,6 +8,7 @@ use axum::{
 use serde::{Deserialize, Serialize};
 use std::net::SocketAddr;
 use std::time::Duration;
+use rss::{ChannelBuilder, Item, ItemBuilder, Guid};
 
 use nostr_sdk::prelude::*;
 
@@ -56,7 +57,7 @@ async fn user_rss(Path(user_id): Path<String>) -> (StatusCode, String) {
 
     let start = Timestamp::from(0);
     let subscription = Filter::new()
-        // .pubkeys(vec![my_keys.public_key()]);
+        .pubkeys(vec![profile.public_key])
         .since(start);
 
     let timeout = Duration::from_secs(10);
@@ -66,14 +67,29 @@ async fn user_rss(Path(user_id): Path<String>) -> (StatusCode, String) {
         .unwrap();
     client.disconnect().await.unwrap();
 
+    let mut channel = ChannelBuilder::default()
+        .title("Channel Title")
+        .link("http://example.com")
+        .description("An RSS feed.")
+        .build();
+
+    let mut items: Vec<Item> = Vec::new();
+
     for e in events {
         let c = e.content;
         println!("Event: {c}");
-
+        let mut guid = Guid::default();
+        guid.set_value(e.id.to_string());
+        let i = ItemBuilder::default()
+            .content(c)
+            .guid(guid)
+            .build();
+        items.push(i);
     }
 
+    channel.set_items(items);
 
-    (StatusCode::OK, String::from("ok"))
+    (StatusCode::OK, channel.to_string())
 
 }
 
