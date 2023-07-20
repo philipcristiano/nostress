@@ -1,6 +1,6 @@
 use axum::{
     routing::get,
-    extract::Path,
+    extract::{Path, State},
     http::{StatusCode, header},
     response::IntoResponse,
     Router,
@@ -19,17 +19,26 @@ pub struct Args {
     bind_addr: String,
 }
 
+#[derive(Clone, Debug)]
+struct NostressConfig {
+    default_relay: String
+}
+
 #[tokio::main]
 async fn main() {
     // initialize tracing
     tracing_subscriber::fmt::init();
 
     let args = Args::parse();
+
+    let nostress_config = NostressConfig {
+        default_relay: "wss://relay.damus.io".to_string()
+    };
     // build our application with a route
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
-        .route("/users/:user_id/rss", get(user_rss));
+        .route("/users/:user_id/rss", get(user_rss)).with_state(nostress_config);
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
@@ -46,7 +55,7 @@ async fn root() -> &'static str {
     "Hello, World!"
 }
 
-async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
+async fn user_rss(State(nc): State<NostressConfig>, Path(user_id): Path<String>) -> impl IntoResponse {
 
     let profile = nostr_sdk::nips::nip05::get_profile(&user_id, None).await.unwrap();
 
@@ -57,6 +66,7 @@ async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
         println!("relay: {r}");
         client.add_relay(r, None).await.unwrap();
     }
+    client.add_relay(nc.default_relay, None).await.unwrap();
 
     client.connect().await;
 
@@ -78,7 +88,7 @@ async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
 
     let mut channel = ChannelBuilder::default()
         .title(&title)
-        .link("http://example.com")
+        .link("http://example.com".to_string())
         .description(&title)
         .build();
 
