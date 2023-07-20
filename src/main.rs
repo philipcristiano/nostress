@@ -8,7 +8,7 @@ use axum::{
 use std::net::SocketAddr;
 use std::time::Duration;
 use std::ops::Sub;
-use rss::{ChannelBuilder, Item, ItemBuilder, Guid};
+use rss::{ChannelBuilder, Item};
 use clap::Parser;
 
 use nostr_sdk::prelude::*;
@@ -85,23 +85,11 @@ async fn user_rss(Path(user_id): Path<String>) -> impl IntoResponse {
     let mut items: Vec<Item> = Vec::new();
 
     for e in events {
-        items.push(event_to_item(e));
+        items.push(nostress::event_to_item(e));
     }
 
     channel.set_items(items);
 
     (StatusCode::OK, [(header::CONTENT_TYPE, "application/rss+xml")], channel.to_string())
 
-}
-
-fn event_to_item(e: Event) -> Item {
-    let c = e.content;
-    let mut guid = Guid::default();
-    guid.set_value(e.id.to_string());
-
-    ItemBuilder::default()
-        .content(c)
-        .guid(guid)
-        .pub_date(e.created_at.to_human_datetime())
-        .build()
 }
