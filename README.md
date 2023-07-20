@@ -6,7 +6,7 @@ Nostr -> RSS
 `cargo run`
 
 ```
-nostress --help      (cli-relays)nostress
+nostress --help
 Usage: nostress [OPTIONS]
 
 Options:
