@@ -33,8 +33,6 @@ async fn main() {
 
     let args = Args::parse();
 
-    println!("Args {:?}", args);
-
     let default_relays = args.default_relay.unwrap_or_default();
 
     let nostress_config = NostressConfig {
@@ -66,10 +64,8 @@ async fn user_rss(State(nc): State<NostressConfig>, Path(user_id): Path<String>)
     let profile = nostr_sdk::nips::nip05::get_profile(&user_id, None).await.unwrap();
 
     let profile_key = Keys::from_public_key(profile.public_key);
-    println!("profile: {:?}", profile);
     let client = Client::new(&profile_key);
     for r in profile.relays {
-        println!("relay: {r}");
         client.add_relay(r, None).await.unwrap();
     }
     for default_relay in nc.default_relays {
