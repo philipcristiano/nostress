@@ -17,11 +17,13 @@ use nostr_sdk::prelude::*;
 pub struct Args {
     #[arg(short, long, default_value = "127.0.0.1:3000")]
     bind_addr: String,
+    #[arg(short, long, num_args=0.. )]
+    default_relay: Option<Vec<String>>,
 }
 
 #[derive(Clone, Debug)]
 struct NostressConfig {
-    default_relay: String
+    default_relays: Vec<String>
 }
 
 #[tokio::main]
@@ -31,8 +33,12 @@ async fn main() {
 
     let args = Args::parse();
 
+    println!("Args {:?}", args);
+
+    let default_relays = args.default_relay.unwrap_or_default();
+
     let nostress_config = NostressConfig {
-        default_relay: "wss://relay.damus.io".to_string()
+        default_relays
     };
     // build our application with a route
     let app = Router::new()
@@ -66,7 +72,9 @@ async fn user_rss(State(nc): State<NostressConfig>, Path(user_id): Path<String>)
         println!("relay: {r}");
         client.add_relay(r, None).await.unwrap();
     }
-    client.add_relay(nc.default_relay, None).await.unwrap();
+    for default_relay in nc.default_relays {
+        client.add_relay(default_relay, None).await.unwrap();
+    }
 
     client.connect().await;
 
