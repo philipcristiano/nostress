@@ -8,8 +8,6 @@ pub fn event_to_item(e: Event) -> Item {
     let event_link = format!("https://snort.social/e/{event_bech32}");
     guid.set_value(e.id.to_string());
 
-    println!("Author {:?}", e.pubkey);
-    println!("Tags {:?}", e.tags);
     ItemBuilder::default()
         .content(c)
         .guid(guid)
