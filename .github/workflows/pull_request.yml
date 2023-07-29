@@ -12,3 +12,6 @@ jobs:
     uses: "philipcristiano/workflows/.github/workflows/docker-build.yml@main"
     with:
       timeout: 25
+
+  rust:
+    uses: "philipcristiano/workflows/.github/workflows/rust.yml@main"
