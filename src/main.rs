@@ -1,10 +1,11 @@
 use axum::{
     routing::get,
-    extract::{Path, State},
+    extract::{Path, State, Query},
     http::{StatusCode, header},
     response::IntoResponse,
     Router,
 };
+use serde::Deserialize;
 use std::net::SocketAddr;
 use std::time::Duration;
 use std::ops::Sub;
@@ -59,7 +60,12 @@ async fn root() -> &'static str {
     "Hello, World!"
 }
 
-async fn user_rss(State(nc): State<NostressConfig>, Path(user_id): Path<String>) -> impl IntoResponse {
+#[derive(Debug, Deserialize)]
+struct TextNoteFilters {
+    include_text_note_replies: Option<bool>,
+}
+
+async fn user_rss(State(nc): State<NostressConfig>, Path(user_id): Path<String>, Query(text_note_filters): Query<TextNoteFilters>) -> impl IntoResponse {
 
     let profile = nostr_sdk::nips::nip05::get_profile(&user_id, None).await.unwrap();
 
@@ -98,7 +104,14 @@ async fn user_rss(State(nc): State<NostressConfig>, Path(user_id): Path<String>)
 
     let mut items: Vec<Item> = Vec::new();
 
-    for e in events {
+    let include_replies = text_note_filters.include_text_note_replies.unwrap_or(false);
+    let filtered_events = if !include_replies {
+        nostress::filter_out_replies(events)
+     } else {
+        events
+    };
+
+    for e in filtered_events {
         items.push(nostress::event_to_item(e));
     }
 
