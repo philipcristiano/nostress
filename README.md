@@ -20,3 +20,8 @@ Options:
 ## Request
 
 `curl localhost:3000/users/_@philipcristiano.com/rss`
+
+### Options
+
+
+`?include_text_note_replies` (default: false) - Replies are not included by default, set `?include_text_note_replies=true` to include them in the RSS feed
