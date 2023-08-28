@@ -11,7 +11,6 @@ use std::time::Duration;
 use std::ops::Sub;
 use rss::{ChannelBuilder, Item};
 use clap::Parser;
-
 use nostr_sdk::prelude::*;
 
 #[derive(Parser, Debug)]
@@ -26,6 +25,7 @@ pub struct Args {
 struct NostressConfig {
     default_relays: Vec<String>
 }
+
 
 #[tokio::main]
 async fn main() {
