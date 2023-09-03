@@ -1,17 +1,21 @@
 use axum::{
-    routing::get,
-    extract::{Path, State, Query},
-    http::{StatusCode, header},
+    extract::{Path, Query, State},
+    http::{header, StatusCode},
     response::IntoResponse,
+    routing::get,
     Router,
 };
-use serde::Deserialize;
-use std::net::SocketAddr;
-use std::time::Duration;
-use std::ops::Sub;
-use rss::{ChannelBuilder, Item};
 use clap::Parser;
 use nostr_sdk::prelude::*;
+use rss::{ChannelBuilder, Item};
+use serde::Deserialize;
+use std::net::SocketAddr;
+use std::ops::Sub;
+use std::time::Duration;
+use tower_http::trace::{self, TraceLayer};
+use tracing::Level;
+
+mod app_init;
 
 #[derive(Parser, Debug)]
 pub struct Args {
@@ -19,31 +23,36 @@ pub struct Args {
     bind_addr: String,
     #[arg(short, long, num_args=0.. )]
     default_relay: Option<Vec<String>>,
+    #[arg(short, long, value_enum, default_value = "INFO")]
+    log_level: tracing::Level,
+    #[arg(long, action)]
+    log_json: bool,
 }
 
 #[derive(Clone, Debug)]
 struct NostressConfig {
-    default_relays: Vec<String>
+    default_relays: Vec<String>,
 }
-
 
 #[tokio::main]
 async fn main() {
-    // initialize tracing
-    tracing_subscriber::fmt::init();
-
     let args = Args::parse();
+    app_init::tracing(args.log_level);
 
     let default_relays = args.default_relay.unwrap_or_default();
 
-    let nostress_config = NostressConfig {
-        default_relays
-    };
+    let nostress_config = NostressConfig { default_relays };
     // build our application with a route
     let app = Router::new()
         // `GET /` goes to `root`
         .route("/", get(root))
-        .route("/users/:user_id/rss", get(user_rss)).with_state(nostress_config);
+        .route("/users/:user_id/rss", get(user_rss))
+        .with_state(nostress_config)
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
+                .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
+        );
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
@@ -65,9 +74,31 @@ struct TextNoteFilters {
     include_text_note_replies: Option<bool>,
 }
 
-async fn user_rss(State(nc): State<NostressConfig>, Path(user_id): Path<String>, Query(text_note_filters): Query<TextNoteFilters>) -> impl IntoResponse {
+#[derive(Debug)]
+struct AppError {}
 
-    let profile = nostr_sdk::nips::nip05::get_profile(&user_id, None).await.unwrap();
+impl IntoResponse for AppError {
+    fn into_response(self) -> axum::response::Response {
+        (StatusCode::BAD_REQUEST, format!("Something went wrong")).into_response()
+    }
+}
+
+async fn user_rss(
+    State(nc): State<NostressConfig>,
+    Path(user_id): Path<String>,
+    Query(text_note_filters): Query<TextNoteFilters>,
+) -> impl IntoResponse {
+    let profile = match nostr_sdk::nips::nip05::get_profile(&user_id, None).await {
+        Ok(r) => r,
+        Err(_) => {
+            return (
+                StatusCode::BAD_REQUEST,
+                [(header::CONTENT_TYPE, "text")],
+                "Could not result nip-05 address",
+            )
+                .into_response()
+        }
+    };
 
     let profile_key = Keys::from_public_key(profile.public_key);
     let client = Client::new(&profile_key);
@@ -107,7 +138,7 @@ async fn user_rss(State(nc): State<NostressConfig>, Path(user_id): Path<String>,
     let include_replies = text_note_filters.include_text_note_replies.unwrap_or(false);
     let filtered_events = if !include_replies {
         nostress::filter_out_replies(events)
-     } else {
+    } else {
         events
     };
 
@@ -117,6 +148,10 @@ async fn user_rss(State(nc): State<NostressConfig>, Path(user_id): Path<String>,
 
     channel.set_items(items);
 
-    (StatusCode::OK, [(header::CONTENT_TYPE, "application/rss+xml")], channel.to_string())
-
+    (
+        StatusCode::OK,
+        [(header::CONTENT_TYPE, "application/rss+xml")],
+        channel.to_string(),
+    )
+        .into_response()
 }
