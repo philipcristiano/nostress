@@ -114,7 +114,7 @@ async fn user_rss(
     let now = Timestamp::now();
     let since = now.sub(Duration::from_secs(86400));
     let subscription = Filter::new()
-        .author(profile.public_key.to_string())
+        .author(profile.public_key)
         .kind(Kind::TextNote)
         .since(since);
 
