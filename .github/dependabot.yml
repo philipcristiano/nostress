@@ -16,6 +16,8 @@ updates:
       dependencies:
           patterns:
             - "*"
+          exclude-patterns:
+            - "*opentelemetry*"
   - package-ecosystem: "docker" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
