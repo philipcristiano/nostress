@@ -15,8 +15,6 @@ use std::time::Duration;
 use tower_http::trace::{self, TraceLayer};
 use tracing::Level;
 
-mod app_init;
-
 #[derive(Parser, Debug)]
 pub struct Args {
     #[arg(short, long, default_value = "127.0.0.1:3000")]
@@ -37,7 +35,7 @@ struct NostressConfig {
 #[tokio::main]
 async fn main() {
     let args = Args::parse();
-    app_init::tracing(args.log_level);
+    service_conventions::tracing::setup(args.log_level);
 
     let default_relays = args.default_relay.unwrap_or_default();
 
