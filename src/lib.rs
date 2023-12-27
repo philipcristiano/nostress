@@ -42,7 +42,7 @@ mod test_events {
     fn include_text_notes_without_tags() {
         let secret_key = SecretKey::from_bech32(BECH32_SK).unwrap();
         let my_keys = Keys::new(secret_key);
-        let e_note: Event = EventBuilder::new_text_note("POW text note from nostr-sdk", &[])
+        let e_note: Event = EventBuilder::new_text_note("POW text note from nostr-sdk", [])
             .to_event(&my_keys)
             .unwrap();
 
@@ -58,12 +58,8 @@ mod test_events {
         let event_id =
             EventId::from_hex("b3e392b11f5d4f28321cedd09303a748acfd0487aea5a7450b3481c60b6e4f87")
                 .unwrap();
-        let tags = [Tag::Event(
-            event_id,
-            Some(UncheckedUrl::from("wss://relay.example.com")),
-            None,
-        )];
-        let e_note: Event = EventBuilder::new_text_note("Text note from nostr-sdk", &tags)
+        let t = Tag::event(event_id);
+        let e_note: Event = EventBuilder::new_text_note("Text note from nostr-sdk", [t])
             .to_event(&my_keys)
             .unwrap();
 
@@ -78,8 +74,8 @@ mod test_events {
         let my_keys = Keys::new(secret_key);
         let other_pub_key = XOnlyPublicKey::from_bech32(OTHER_BECH32_SK).unwrap();
 
-        let tags = [Tag::PubKey(other_pub_key, None)];
-        let e_note: Event = EventBuilder::new_text_note("Text note from nostr-sdk", &tags)
+        let t = Tag::public_key(other_pub_key);
+        let e_note: Event = EventBuilder::new_text_note("Text note from nostr-sdk", [t])
             .to_event(&my_keys)
             .unwrap();
 

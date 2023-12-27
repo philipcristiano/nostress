@@ -99,10 +99,10 @@ async fn user_rss(
     let profile_key = Keys::from_public_key(profile.public_key);
     let client = Client::new(&profile_key);
     for r in profile.relays {
-        client.add_relay(r, None).await.unwrap();
+        client.add_relay(r).await.unwrap();
     }
     for default_relay in nc.default_relays {
-        client.add_relay(default_relay, None).await.unwrap();
+        client.add_relay(default_relay).await.unwrap();
     }
 
     client.connect().await;
