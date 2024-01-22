@@ -2,7 +2,7 @@ use nostr_sdk::prelude::*;
 use rss::{Guid, Item, ItemBuilder};
 
 pub fn event_to_item(e: Event) -> Item {
-    let c = e.content;
+    let c = e.content.clone();
     let mut guid = Guid::default();
     let event_bech32 = e.id.to_bech32().unwrap();
     let event_link = format!("https://snort.social/e/{event_bech32}");
