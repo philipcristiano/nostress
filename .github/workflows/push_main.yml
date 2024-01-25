@@ -27,7 +27,7 @@ jobs:
     uses: "philipcristiano/workflows/.github/workflows/rust.yml@main"
 
   release-please:
-    needs: [flake, rust, atlas]
+    needs: [flake, rust]
     runs-on: ubuntu-latest
     steps:
       - uses: google-github-actions/release-please-action@v4
