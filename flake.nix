@@ -18,7 +18,10 @@
           devShells.default = mkShell {
             buildInputs = [
                 rust-bin.stable.latest.default
-                darwin.apple_sdk.frameworks.Security # Should only be for darwin
+            ] ++
+              pkgs.lib.optionals pkgs.stdenv.isDarwin [
+                darwin.apple_sdk.frameworks.Security
+                darwin.apple_sdk.frameworks.SystemConfiguration
             ];
           };
         }
