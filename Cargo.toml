@@ -16,5 +16,5 @@ serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.36.0", features = ["full"]}
 tracing = "0.1.40"
 
-tower-http = { version = "0.5.1", features = ["tracing", "trace"] }
+tower-http = { version = "0.5.2", features = ["tracing", "trace"] }
 service_conventions = "0.0.1"
