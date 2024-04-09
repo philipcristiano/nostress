@@ -1,7 +1,7 @@
 use axum::{
     extract::{Path, Query, State},
     http::{header, StatusCode},
-    response::IntoResponse,
+    response::{IntoResponse, Response},
     routing::get,
     Router,
 };
@@ -70,39 +70,26 @@ struct TextNoteFilters {
     include_text_note_replies: Option<bool>,
 }
 
-#[derive(Debug)]
-struct AppError {}
-
-impl IntoResponse for AppError {
-    fn into_response(self) -> axum::response::Response {
-        (StatusCode::BAD_REQUEST, format!("Something went wrong")).into_response()
-    }
+#[tracing::instrument]
+async fn get_user_profile(
+    user_id: &String,
+) -> anyhow::Result<nostr_sdk::nips::nip19::Nip19Profile> {
+    Ok(nostr_sdk::nips::nip05::get_profile(&user_id, None).await?)
 }
 
 async fn user_rss(
     State(nc): State<NostressConfig>,
     Path(user_id): Path<String>,
     Query(text_note_filters): Query<TextNoteFilters>,
-) -> impl IntoResponse {
-    let profile = match nostr_sdk::nips::nip05::get_profile(&user_id, None).await {
-        Ok(r) => r,
-        Err(_) => {
-            return (
-                StatusCode::BAD_REQUEST,
-                [(header::CONTENT_TYPE, "text")],
-                "Could not result nip-05 address",
-            )
-                .into_response()
-        }
-    };
-
+) -> Result<Response, AppError> {
+    let profile = get_user_profile(&user_id).await?;
     let profile_key = Keys::from_public_key(profile.public_key);
     let client = Client::new(&profile_key);
     for r in profile.relays {
-        client.add_relay(r).await.unwrap();
+        client.add_relay(r).await?;
     }
     for default_relay in nc.default_relays {
-        client.add_relay(default_relay).await.unwrap();
+        client.add_relay(default_relay).await?;
     }
 
     client.connect().await;
@@ -117,9 +104,8 @@ async fn user_rss(
     let timeout = Duration::from_secs(10);
     let events = client
         .get_events_of(vec![subscription], Some(timeout))
-        .await
-        .unwrap();
-    client.disconnect().await.unwrap();
+        .await?;
+    client.disconnect().await?;
 
     let title = vec![user_id, " - Nostr".to_string()].join("");
 
@@ -144,10 +130,35 @@ async fn user_rss(
 
     channel.set_items(items);
 
-    (
+    Ok((
         StatusCode::OK,
         [(header::CONTENT_TYPE, "application/rss+xml")],
         channel.to_string(),
     )
-        .into_response()
+        .into_response())
+}
+
+// Make our own error that wraps `anyhow::Error`.
+struct AppError(anyhow::Error);
+
+// Tell axum how to convert `AppError` into a response.
+impl IntoResponse for AppError {
+    fn into_response(self) -> Response {
+        (
+            StatusCode::INTERNAL_SERVER_ERROR,
+            format!("Something went wrong: {}", self.0),
+        )
+            .into_response()
+    }
+}
+
+// This enables using `?` on functions that return `Result<_, anyhow::Error>` to turn them into
+// `Result<_, AppError>`. That way you don't need to do that manually.
+impl<E> From<E> for AppError
+where
+    E: Into<anyhow::Error>,
+{
+    fn from(err: E) -> Self {
+        Self(err.into())
+    }
 }
