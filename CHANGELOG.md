@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0](https://github.com/philipcristiano/nostress/compare/v0.1.5...v0.2.0) (2024-04-09)
+
+
+### Features
+
+* Linkify things that look like links ([c512128](https://github.com/philipcristiano/nostress/commit/c512128a3c04378794edf9743ac16d51b519e7c4))
+
+
+### Bug Fixes
+
+* **deps:** update rust crate service_conventions to 0.0.13 ([a7ed868](https://github.com/philipcristiano/nostress/commit/a7ed8688cd8e9d76427bf03ffb7f4f7412276f68))
+* **deps:** update rust crate service_conventions to 0.0.14 ([5648123](https://github.com/philipcristiano/nostress/commit/5648123b71eb632c37dda8cafd206b2a50011725))
+
 ## [0.1.5](https://github.com/philipcristiano/nostress/compare/v0.1.4...v0.1.5) (2024-03-31)
 
 
