@@ -2,7 +2,7 @@ use nostr_sdk::prelude::*;
 use rss::{Guid, Item, ItemBuilder};
 
 pub fn event_to_item(e: Event) -> Item {
-    let c = e.content.clone();
+    let c = linkify_content(e.content.clone());
     let mut guid = Guid::default();
     let event_bech32 = e.id.to_bech32().unwrap();
     let event_link = format!("https://snort.social/e/{event_bech32}");
@@ -23,6 +23,19 @@ fn event_is_reply(e: &Event) -> bool {
         TagKind::E => false,
         _ => return false,
     })
+}
+
+pub fn linkify_content(content: String) -> String {
+    let finder = linkify::LinkFinder::new();
+    let links: Vec<_> = finder.links(&content).collect();
+    let mut new_content = content.clone();
+
+    for l in links {
+        let link_str = l.as_str();
+        let anchor = format!("<a href=\"{link_str}\">{link_str}</a>");
+        new_content = new_content.replace(link_str, &anchor);
+    }
+    new_content
 }
 
 pub fn filter_out_replies(v: Vec<Event>) -> Vec<Event> {

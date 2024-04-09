@@ -18,3 +18,4 @@ tracing = "0.1.40"
 
 tower-http = { version = "0.5.2", features = ["tracing", "trace"] }
 service_conventions = "0.0.14"
+linkify = "0.10.0"
