@@ -1769,6 +1769,7 @@ dependencies = [
 name = "nostress"
 version = "0.1.5"
 dependencies = [
+ "anyhow",
  "axum 0.7.5",
  "clap",
  "linkify",
