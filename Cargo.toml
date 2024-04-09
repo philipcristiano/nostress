@@ -1,6 +1,6 @@
 [package]
 name = "nostress"
-version = "0.1.5"
+version = "0.2.0"
 edition = "2021"
 description = "Nostr to RSS"
 license = "Apache-2.0"
