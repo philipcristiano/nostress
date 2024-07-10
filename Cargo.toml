@@ -10,7 +10,7 @@ license = "Apache-2.0"
 [dependencies]
 axum = "0.7.5"
 clap = { version = "4.5.4", features = ["derive", "env"]}
-nostr-sdk = "0.28.0"
+nostr-sdk = "0.32.0"
 rss = "2.0.7"
 serde = { version = "1.0.200", features = ["derive"] }
 tokio = { version = "1.37.0", features = ["full"]}
