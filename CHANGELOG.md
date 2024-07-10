@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.2](https://github.com/philipcristiano/nostress/compare/v0.2.1...v0.2.2) (2024-07-10)
+
+
+### Bug Fixes
+
+* Use common tracelayer ([f1f7dea](https://github.com/philipcristiano/nostress/commit/f1f7dea366c3e1d525e6d2918f2abbf1339c083d))
+
 ## [0.2.1](https://github.com/philipcristiano/nostress/compare/v0.2.0...v0.2.1) (2024-07-10)
 
 
