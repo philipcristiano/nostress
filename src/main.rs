@@ -47,9 +47,7 @@ async fn main() {
         .route("/users/:user_id/rss", get(user_rss))
         .with_state(nostress_config)
         .layer(
-            TraceLayer::new_for_http()
-                .make_span_with(trace::DefaultMakeSpan::new().level(Level::INFO))
-                .on_response(trace::DefaultOnResponse::new().level(Level::INFO)),
+            service_conventions::tracing_http::trace_layer(Level::INFO)
         );
 
     // run our app with hyper
