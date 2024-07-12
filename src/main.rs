@@ -46,9 +46,8 @@ async fn main() {
         .route("/", get(root))
         .route("/users/:user_id/rss", get(user_rss))
         .with_state(nostress_config)
-        .layer(
-            service_conventions::tracing_http::trace_layer(Level::INFO)
-        );
+        .layer(service_conventions::tracing_http::trace_layer(Level::INFO))
+        .route("/_health", get(health));
 
     // run our app with hyper
     // `axum::Server` is a re-export of `hyper::Server`
@@ -61,6 +60,10 @@ async fn main() {
 // basic handler that responds with a static string
 async fn root() -> &'static str {
     "Hello, World!"
+}
+
+async fn health() -> Response {
+    "OK".into_response()
 }
 
 #[derive(Debug, Deserialize)]
