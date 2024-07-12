@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3](https://github.com/philipcristiano/nostress/compare/v0.2.2...v0.2.3) (2024-07-12)
+
+
+### Bug Fixes
+
+* Add healthcheck ([21ef243](https://github.com/philipcristiano/nostress/commit/21ef243d0162bcc253441b6ebd00b37ff52af017))
+* **deps:** update rust crate nostr-sdk to 0.32.0 ([ca560ec](https://github.com/philipcristiano/nostress/commit/ca560ec4019882931e376a168a91b8c9eaae0552))
+* Update for nostr-sdk tag is_reply ([cfc8add](https://github.com/philipcristiano/nostress/commit/cfc8add5e6d4cdb1f268e851f43037d7af77b0d3))
+
 ## [0.2.2](https://github.com/philipcristiano/nostress/compare/v0.2.1...v0.2.2) (2024-07-10)
 
 
