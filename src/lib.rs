@@ -17,12 +17,7 @@ pub fn event_to_item(e: Event) -> Item {
 }
 
 fn event_is_reply(e: &Event) -> bool {
-    println!("{:?}", &e);
-    e.tags.iter().any(|tag| match tag.kind() {
-        TagKind::P => true,
-        TagKind::E => false,
-        _ => return false,
-    })
+    e.tags.iter().any(|tag| tag.is_reply())
 }
 
 pub fn linkify_content(content: String) -> String {
@@ -82,15 +77,20 @@ mod test_events {
     }
 
     #[test]
-    fn exclude_text_notes_referencing_pubkeys() {
+    fn exclude_replies() {
         let secret_key = SecretKey::from_bech32(BECH32_SK).unwrap();
         let my_keys = Keys::new(secret_key);
         let other_pub_key = PublicKey::from_bech32(OTHER_BECH32_SK).unwrap();
 
         let t = Tag::public_key(other_pub_key);
-        let e_note: Event = EventBuilder::text_note("Text note from nostr-sdk", [t])
+
+        let original_note: Event = EventBuilder::text_note("Text note from nostr-sdk", [t])
             .to_event(&my_keys)
             .unwrap();
+        let e_note: Event =
+            EventBuilder::text_note_reply("Text note from nostr-sdk", &original_note, None, None)
+                .to_event(&my_keys)
+                .unwrap();
 
         let notes = vec![e_note];
         let filtered_notes = filter_out_replies(notes);
