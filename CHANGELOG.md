@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4](https://github.com/philipcristiano/nostress/compare/v0.2.3...v0.2.4) (2024-08-08)
+
+
+### Bug Fixes
+
+* **deps:** update rust crate clap to v4.5.10 ([abee847](https://github.com/philipcristiano/nostress/commit/abee847f34a467ae0db276af88ce88a0d2ed2e17))
+* **deps:** update rust crate clap to v4.5.11 ([c5d8469](https://github.com/philipcristiano/nostress/commit/c5d8469f203b87a1fe2c691f1bf6d731064323bf))
+* **deps:** update rust crate clap to v4.5.12 ([6a8b74a](https://github.com/philipcristiano/nostress/commit/6a8b74ae008e1f6876e2adb4eae1fac2e806459d))
+* **deps:** update rust crate clap to v4.5.13 ([b200d19](https://github.com/philipcristiano/nostress/commit/b200d1946ce92ce1e76e4bb4f63b4e3463bfd6e7))
+* **deps:** update rust crate clap to v4.5.14 ([895cff3](https://github.com/philipcristiano/nostress/commit/895cff3699c69d9d9cd3b27841741f8f5e944589))
+* **deps:** update rust crate nostr-sdk to 0.33.0 ([5026a61](https://github.com/philipcristiano/nostress/commit/5026a61f009d3cb0c85b97d1795c3c4e931ce760))
+* **deps:** update rust crate serde to v1.0.205 ([0cf9aad](https://github.com/philipcristiano/nostress/commit/0cf9aad55ad3f2519dcd92ff83af45be1578741c))
+* **deps:** update rust crate service_conventions to 0.0.18 ([ae85415](https://github.com/philipcristiano/nostress/commit/ae854152c3c0afcf8efa30190c658e1ada63cd67))
+* **deps:** update rust crate service_conventions to 0.0.19 ([aad42bb](https://github.com/philipcristiano/nostress/commit/aad42bbb9bb25560ab7b5ff5ea0608a1c59aef91))
+* **deps:** update rust crate tokio to v1.38.1 ([5015611](https://github.com/philipcristiano/nostress/commit/50156119ef98a67ff0c33dee5c131896f4b5a8bd))
+* **deps:** update rust crate tokio to v1.39.1 ([0f3e2df](https://github.com/philipcristiano/nostress/commit/0f3e2df36d7dd9a9ff16f1140b209a5d84000299))
+* **deps:** update rust crate tokio to v1.39.2 ([223d4e6](https://github.com/philipcristiano/nostress/commit/223d4e621f492e770bf191a93625a0ae21a6f401))
+
 ## [0.2.3](https://github.com/philipcristiano/nostress/compare/v0.2.2...v0.2.3) (2024-07-12)
 
 
